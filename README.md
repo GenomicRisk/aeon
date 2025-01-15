@@ -1,7 +1,7 @@
 # AEon<sup>1</sup> - Ancestry Estimation #
 
-_aeon_ performs global genetic Ancestry Estimation from genome-wide SNPs. By default, aeon compares variants from your input VCF file 
-against the per-population allele frequencies (AFs) provided in `refs/g1k_allele_freqs.txt`. This file contains AFs at 
+_aeon_ performs global genetic Ancestry Estimation from genome-wide SNPs. By default, aeon compares variants from your input VCF file
+against the per-population allele frequencies (AFs) provided in `refs/g1k_allele_freqs.txt`. This file contains AFs at
 128097 ancestry-informative loci, calculated for the 26 populations provided on [1000 Genomes](https://www.internationalgenome.org/data-portal/data-collection/30x-grch38).
 
 Aeon accepts input as VCF, VCF.GZ or BCF. If you are using a VCF.GZ or BCF, aeon requires the corresponding index file
@@ -9,20 +9,50 @@ to exist in the same directory.
 
 The tool provides 2 output CSV files:
 
-- out_ae.csv 		    -> table of estimated ancestry fractions
+- out_ae.csv       -> table of estimated ancestry fractions
 - out_ae_stats.csv      -> table with top 3 PC projections and some information about the run,
 
 and one or more visualisation files.
 
+## Installing from PyPi ##
+
+WIP!
+
+To install:
+
+```bash
+pipx install aeon
+```
+
+Then you can run aeon from anywhere using:
+
+```bash
+aeon -h
+```
+
+## Running aeon using python poetry ##
+
+To install:
+
+```bash
+cd aeon
+poetry install
+```
+
+Then you can run aeon with:
+
+```bash
+poetry run aeon -h
+```
 
 ## Running aeon using the BitBucket repo ##
 
 Before starting, make sure you have a working version of python (tested using Python 3.10) and pip.
 
-Clone the repo to your local machine and install the requirements in `requirements.txt` using pip (you may want to do this in 
+Clone the repo to your local machine and install the requirements in `requirements.txt` using pip (you may want to do this in
 a virtual environment e.g. using conda).
 
-```
+```bash
 $ git clone git@bitbucket.org:wrensong/aeon.git
 $ cd aeon
 
@@ -34,21 +64,24 @@ $ conda activate my_env
 ```
 
 You should then be able to run aeon from the command line like so (make sure you have activated your virtual env, if you made one):
-```
+
+```bash
 (my_env)$ python aeon.py sample_variants.bcf -o my_output
 ```
 
 ## Running using the Docker Image ##
 
 A docker image is available [here](https://hub.docker.com/r/naomiwren/aeon). Within the container you can run aeon like so:
-```
-$ aeon.py sample_variants.bcf -o my_output
+
+```bash
+aeon.py sample_variants.bcf -o my_output
 ```
 
 ## Example usage ##
 
 To see all possible input options, run `python aeon.py -h`:
-```
+
+```bash
 (my_env)$ python aeon.py -h
 usage: aeon.py [-h] [-a ALLELE_FREQS] [--population_labels POPULATION_LABELS] [-o OUT] [-v] [--inheritance] [--no_visualisation] vcffile
 
@@ -78,7 +111,8 @@ options:
 `$ python aeon.py sample_variants.bcf -o my_output`
 
 Output:
-```
+
+```txt
 my_output_ae.csv
 my_output_ae_stats.csv
 sample1_PCA_plot.png
@@ -96,7 +130,8 @@ It is possible not to specify an output file prefix. All characters before the f
 `$ python aeon.py prefix_example_sample_variants.bcf`
 
 Output:
-```
+
+```txt
 prefix_ae.csv
 prefix_ae_stats.csv
 sample1_PCA_plot.png
@@ -104,7 +139,7 @@ sample1_PCA_plot.png
 ```
 
 **For a region-bound VCF:**
-***(e.g. data generated from WES)***
+_**(e.g. data generated from WES)**_
 
 If your VCF does not cover the whole genome, e.g. the data was generated with Whole Exome Sequencing, you will want to subset the reference AF file to your regions of coverage. Using a bed file containing your regions of interest, you can easily do this using bedtools (tested with bedtools v2.31.0; installation instructions [here](https://bedtools.readthedocs.io/en/latest/content/installation.html)) and the following command:
 
@@ -121,8 +156,9 @@ See [Reference Populations](#markdown-header-reference-populations) for informat
 
 ### Example data ###
 
-The `example` directory contains example trio input data taken from 1000 Genomes in the file `g1k_trio_ASW.bcf`, as well as corresponding 
+The `example` directory contains example trio input data taken from 1000 Genomes in the file `g1k_trio_ASW.bcf`, as well as corresponding
 output data. Once you have [set up aeon on your machine](#markdown-header-running-aeon-using-the-bitbucket-repo), you can run the example data yourself and compare your results:
+
 ```
 (my_env) $ python aeon.py example/g1k_trio_ASW.bcf --inheritance -o ASW_example
 ```
@@ -132,7 +168,6 @@ This should produce 3 files: `ASW_example_ae.csv`, `ASW_example_ae_stats.csv` an
 **Note:** Since this example data is from 1000 Genomes, the parent samples were used as part of the reference set to calculate the allele frequencies provided in `refs/g1k_allele_freqs.txt`.
 However, the child sample was not used for calculating AFs, as only the 2504 _unrelated_ individuals from the 1000 Genomes dataset were selected.
 
-
 ## Interpreting Output ##
 
 PLEASE NOTE that the underlying model assumes that the ancestry of any input sample can be completely explained by the 26 reference populations provided. Ancestry from a non-characterised population will not be captured; instead it will be assigned to the closest known population. If you would like to use your own allele frequency data including a different population of particular interest to your study, see [Reference Populations](#markdown-header-reference-populations).
@@ -141,10 +176,10 @@ PLEASE NOTE that the underlying model assumes that the ancestry of any input sam
 
 Aeon provides ancestry estimation fractions per population to 2 decimal places. From analysis on trio (mother/father/child) data:
 
-- score > 0.1 			-> significant
-- 0.05 < score < 0.1 	-> likely significant
-- score < 0.05			-> likely insignificant
-- score < 0.02			-> noise
+- score > 0.1    -> significant
+- 0.05 < score < 0.1  -> likely significant
+- score < 0.05   -> likely insignificant
+- score < 0.02   -> noise
 
 It is important to bear in mind that ancestral populations are not completely isolated from each other - some populations are more closely related to each other than others due to their historical geographic context, and this is reflected in grouping into _superpopulations_. The `ae.csv` file records which superpopulation each population belongs to, to assist interpretation. Some guidelines:
 
@@ -152,7 +187,6 @@ It is important to bear in mind that ancestral populations are not completely is
 - The EUR superpopulation has a high degree of overlap between populations. It is not unreasonable to see estimated ancestry fractions split across all EUR populations for a EUR sample.
 - The AFR and AMR superpopulations show a high degree of variation within populations. As such, low scores in these populations are more ambiguous.
 - PUR is the closest AMR population to the EUR superpopulation, reflecting historical admixture. If the _only_ AMR population to receive a score > 0.02 is PUR, and the sample scores highly for EUR populations, treat the AMR estimate with caution. Visualisation can help in these cases.
-
 
 ### ae_sample_stats.csv file ###
 
@@ -184,26 +218,24 @@ Aeon is based on probabilistic model, whereby population membership fractions _p
 
 Assume an individual _i_ is genotyped at each of _n_ unlinked biallelic autosomal loci to give a vector of alt allele dosages _d<sub>i</sub>_ where _d<sub>i,j</sub>_ ∈ {0, 1, 2}. _d<sub>i,j</sub>_ is sampled on two draws from a binomial distribution with probabilities depending on the genotype  _g<sub>i,j</sub>_ and variant allele frequencies A<sub>k,j</sub> in each population _k_ ∈ 1..._m_. The best estimate for population membership fractions is then calculated using Maximum Likelihood Estimation on this model.
 
-
 Note that several assumptions are implicit in this model:
-* All contributing ancestral populations are represented in the input allele frequency matrix _A_
-    * as such, if you expect a different population to significantly contribute to ancestry, use a modified AF file with the flag `-a`
-* Loci are biallelic
-    * see 'NumberMultiAllelic' column in your out_ae_stats.csv file to see if this assumption holds for your data. A small proportion of input loci that are multi-allelic is not likely to have a significant effect on the results.
-* Loci are unlinked
-    * The loci in the default AF file are selected to specifically adhere to this assumption. If you supply your own modified AF file with different loci, it is up to you to make sure they are unlinked.
-* No missing values in input
-    * Due to the compressed nature of VCF files, if a locus/variant from the AF file is missing from your input VCF, the tool assumes that all samples in the VCF are homozygous reference at this locus. The fraction of loci imputed as reference in this manner can be seen in the 'FractionLociImputed' column in your out_ae_stats.csv file. It is not uncommon to se a fraction between 0.4-0.5 if your input does not include rows that are homozygous reference.
-    * If you DO NOT WANT this behaviour (e.g. you have only sequenced specific regions of the genome like exons, and don't want all introns to be imputed as reference!), you will need to [subset the AF file](#markdown-header-for-a-region-bound-vcf) for the desired regions using bedtools and run aeon with this subsetted AF file. Note that using a subset of loci provides less information to the tool, resulting in a faster running time but less accurate predictions.
-
+- All contributing ancestral populations are represented in the input allele frequency matrix _A_
+  - as such, if you expect a different population to significantly contribute to ancestry, use a modified AF file with the flag `-a`
+- Loci are biallelic
+  - see 'NumberMultiAllelic' column in your out_ae_stats.csv file to see if this assumption holds for your data. A small proportion of input loci that are multi-allelic is not likely to have a significant effect on the results.
+- Loci are unlinked
+  - The loci in the default AF file are selected to specifically adhere to this assumption. If you supply your own modified AF file with different loci, it is up to you to make sure they are unlinked.
+- No missing values in input
+  - Due to the compressed nature of VCF files, if a locus/variant from the AF file is missing from your input VCF, the tool assumes that all samples in the VCF are homozygous reference at this locus. The fraction of loci imputed as reference in this manner can be seen in the 'FractionLociImputed' column in your out_ae_stats.csv file. It is not uncommon to se a fraction between 0.4-0.5 if your input does not include rows that are homozygous reference.
+  - If you DO NOT WANT this behaviour (e.g. you have only sequenced specific regions of the genome like exons, and don't want all introns to be imputed as reference!), you will need to [subset the AF file](#markdown-header-for-a-region-bound-vcf) for the desired regions using bedtools and run aeon with this subsetted AF file. Note that using a subset of loci provides less information to the tool, resulting in a faster running time but less accurate predictions.
 
 ### Reference Populations ###
 
 Allele frequencies from 26 reference populations were obtained using data from [1000 Genomes](https://www.internationalgenome.org/data-portal/data-collection/30x-grch38).
-As such, this model cannot predict membership in populations *outside* this dataset - if other ancestry is present in your sample of interest,
+As such, this model cannot predict membership in populations _outside_ this dataset - if other ancestry is present in your sample of interest,
 it will be captured (erroneously) across the 26 known populations.
 
-However, you can use your own allele frequency reference file if you have access to population AFs of specific interest to your study. Make sure your allele frequency file is tab-delimited with the header `CHROM    START    STOP    VAR_ID   POP1   [POP2 ...]`, and format your variant IDs as `chrN_pos_REF_ALT`. You will also need to supply a tab-delimited file of population labels and their corresponding superpopulations. 
+However, you can use your own allele frequency reference file if you have access to population AFs of specific interest to your study. Make sure your allele frequency file is tab-delimited with the header `CHROM    START    STOP    VAR_ID   POP1   [POP2 ...]`, and format your variant IDs as `chrN_pos_REF_ALT`. You will also need to supply a tab-delimited file of population labels and their corresponding superpopulations.
 See `g1k_allele_freqs.txt` and `pop2super.txt` in the `refs` directory for examples.
 
 ### 128097 'ancestry-informative' loci ###
@@ -220,8 +252,6 @@ This initial list was then further refined to suit the reference set from 1000 G
 
 ## Who do I talk to? ##
 
-Contact Naomi for more info at nwarren@ccia.org.au
-
-
+Contact Naomi for more info at <nwarren@ccia.org.au>
 
 <sup>1</sup> _**aeon** /ˈiːən/ (noun):_ an indefinite and very long period of time
