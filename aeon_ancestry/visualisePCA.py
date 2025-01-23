@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mp_lines
 
 from aeon_ancestry.genotype_from_vcf import Genotypes
+from aeon_ancestry.util import AeonUtil
 
 
 def plotReferencePCA(num_loci=128097):
     # DATA
-    ref_pcas = pd.read_table("refs/reference_PC3s.txt", sep=" ")
+    ref_pcas = pd.read_table(AeonUtil.resolve_ref_filename("refs/reference_PC3s.txt"), sep=" ")
 
     colour_map = {
         "ACB": "#2BCE48",
@@ -131,13 +132,13 @@ def plotReferencePCA(num_loci=128097):
 
 
 def transformToPCA(genotypes: Genotypes, subset=False):
-    scale_f = np.loadtxt("refs/g1k_PCA_scale_factors.csv")
-    centres = np.loadtxt("refs/g1k_PCA_centres.csv")
-    rot = np.genfromtxt("refs/g1k_PCA_rotations.csv", delimiter=",")
+    scale_f = np.loadtxt(AeonUtil.resolve_ref_filename("refs/g1k_PCA_scale_factors.csv"))
+    centres = np.loadtxt(AeonUtil.resolve_ref_filename("refs/g1k_PCA_centres.csv"))
+    rot = np.genfromtxt(AeonUtil.resolve_ref_filename("refs/g1k_PCA_rotations.csv"), delimiter=",")
     n = 128097
 
     if subset:
-        full_set_df = pd.read_table("refs/g1k_allele_freqs.txt").filter(["VAR_ID"])
+        full_set_df = pd.read_table(AeonUtil.resolve_ref_filename("refs/g1k_allele_freqs.txt")).filter(["VAR_ID"])
         subids = genotypes.variantList()
         subset = full_set_df[full_set_df["VAR_ID"].isin(subids)]
         n = len(subids)
