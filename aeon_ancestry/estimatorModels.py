@@ -14,7 +14,7 @@ import colorama
 from colorama import Fore
 from colorama import Style
 
-from aeon.genotype_from_vcf import Genotypes
+from aeon_ancestry.genotype_from_vcf import Genotypes
 
 class PopulationMixtureModelRandom:
     def __init__(self, dosages: torch.Tensor, allele_freqs: torch.Tensor):

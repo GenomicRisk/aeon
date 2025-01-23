@@ -16,12 +16,10 @@ and one or more visualisation files.
 
 ## Installing from PyPi ##
 
-WIP!
-
 To install:
 
 ```bash
-pipx install aeon
+pipx install aeon-ancestry
 ```
 
 Then you can run aeon from anywhere using:

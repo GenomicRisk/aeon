@@ -13,9 +13,9 @@ import pandas as pd
 import torch
 from colorama import Fore, Style
 
-from aeon.estimatorModels import PopulationMixtureModelRandom
-from aeon.genotype_from_vcf import Genotypes
-from aeon.visualisePCA import saveIndividualPCAplot, saveTrioPCAplot, transformToPCA
+from aeon_ancestry.estimatorModels import PopulationMixtureModelRandom
+from aeon_ancestry.genotype_from_vcf import Genotypes
+from aeon_ancestry.visualisePCA import saveIndividualPCAplot, saveTrioPCAplot, transformToPCA
 
 
 def aeon(args):

@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines as mp_lines
 
-from aeon.genotype_from_vcf import Genotypes
+from aeon_ancestry.genotype_from_vcf import Genotypes
 
 def plotReferencePCA (num_loci=128097):
     # DATA
