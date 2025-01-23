@@ -21,7 +21,7 @@ WIP!
 To install:
 
 ```bash
-pipx install aeon
+pipx install aeon-ancestry
 ```
 
 Then you can run aeon from anywhere using:
@@ -30,7 +30,7 @@ Then you can run aeon from anywhere using:
 aeon -h
 ```
 
-## Running aeon using python poetry ##
+## Running aeon from source using python poetry ##
 
 To install:
 
