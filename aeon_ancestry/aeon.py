@@ -15,6 +15,7 @@ from colorama import Fore, Style
 
 from aeon_ancestry.estimatorModels import PopulationMixtureModelRandom
 from aeon_ancestry.genotype_from_vcf import Genotypes
+from aeon_ancestry.util import AeonUtil
 from aeon_ancestry.visualisePCA import saveIndividualPCAplot, saveTrioPCAplot, transformToPCA
 
 
@@ -30,7 +31,7 @@ def aeon(args):
         else:
             outfix = in_split.split(".")[0]
 
-    af_data = pd.read_table(args.allele_freqs)
+    af_data = pd.read_table(AeonUtil.resolve_ref_filename(args.allele_freqs))
     loci_list = af_data["VAR_ID"]
     pop_names = af_data.columns[4:]
     af_floats = af_data.drop(columns=["CHROM", "START", "STOP", "VAR_ID"]).astype("float32")
@@ -69,7 +70,7 @@ def aeon(args):
     log_df["NumberMultiAllelic"] = log_df.Sample.apply(g.multiAllelic)
 
     # Estimate population memberships for each sample in input VCF
-    result_df = pd.read_table(args.population_labels)
+    result_df = pd.read_table(AeonUtil.resolve_ref_filename(args.population_labels))
     result_df.set_index("Population", inplace=True)
 
     losses = []
