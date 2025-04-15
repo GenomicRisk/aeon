@@ -4,10 +4,11 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mp_lines
 
 from aeon_ancestry.genotype_from_vcf import Genotypes
+from aeon_ancestry.util import AeonUtil
 
 def plotReferencePCA (num_loci=128097):
     # DATA
-    ref_pcas = pd.read_table("refs/reference_PC3s.txt", sep=" ")
+    ref_pcas = pd.read_table(AeonUtil.resolve_ref_filename("refs/reference_PC3s.txt"), sep=" ")
 
     colour_map = {
             "ACB": "#2BCE48",   "ASW": "#94FFB5",   "BEB": "#990000",    "CDX": "#C20088",

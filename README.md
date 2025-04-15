@@ -98,15 +98,17 @@ options:
                         Tab-delimited file listing populations in allele_freqs file and their corresponding superpopulation, and the header
                         line: Superpopulation Population
   -o OUT, --out OUT     PREFIX for output files. Default is to capture all chars of input filename before the first underscore e.g.
-                        450-100_variants_file.vcf -> 450-100
+                        500-x01_variants_file.vcf -> 500-x01
+  -t THREADS, --threads THREADS
+                        Number of threads for estimation step - recommended between 3-6
   -v, --verbose         Run in verbose mode (prints INFO level logs to stderr as well as WARNINGs)
   --inheritance         Run in inheritance mode - all samples from VCF will be plotted/visualised together. Note: only works for <=3 samples.
-  --no_visualisation    Do not output any visualisation files.
+  --visualisation       Output PCA visualisation files.
 ```
 
 **For a generic single- or multi-sample VCF from WGS data:**
 
-`$ python aeon.py sample_variants.bcf -o my_output`
+`$ python aeon.py sample_variants.bcf -o my_output --visualisation`
 
 Output:
 
@@ -119,13 +121,13 @@ sample1_PCA_plot.png
 
 **For a duo/trio multi-sample VCF:**
 
-`$ python aeon.py sample_variants.bcf -o my_output --inheritance`
+`$ python aeon.py sample_variants.bcf -o my_output --inheritance --visualisation`
 
 **Without a specified output file prefix (use with caution):**
 
 It is possible not to specify an output file prefix. All characters before the first `_` in the input VCF filename will be used as a prefix.
 
-`$ python aeon.py prefix_example_sample_variants.bcf`
+`$ python aeon.py prefix_example_sample_variants.bcf --visualisation`
 
 Output:
 
@@ -158,7 +160,7 @@ The `example` directory contains example trio input data taken from 1000 Genomes
 output data. Once you have [set up aeon on your machine](#markdown-header-running-aeon-using-the-bitbucket-repo), you can run the example data yourself and compare your results:
 
 ```
-(my_env) $ python aeon.py example/g1k_trio_ASW.bcf --inheritance -o ASW_example
+(my_env) $ python aeon.py example/g1k_trio_ASW.bcf --inheritance --visualisation -o ASW_example
 ```
 
 This should produce 3 files: `ASW_example_ae.csv`, `ASW_example_ae_stats.csv` and `ASW_example_PCA_plot.png`. Looking in `ASW_example_ae.csv`, you will notice that the majority of the estimated ancestry (0.6-0.7) is assigned to the ASW (African Ancestry in Southwest US) population. The remainder is split amongst the other populations within the AFR superpopulation. This reflects the heterogeneity within and overlap between African populations. By examining the plots in `ASW_example_PCA_plot.png`, you can see how the trio is located amongst the mint green ASW samples, with some samples in different shades of green (other African populations) in the vicinity.
