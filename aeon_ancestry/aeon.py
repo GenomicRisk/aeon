@@ -7,6 +7,7 @@ Naomi Warren 2023
 import argparse
 import logging
 import os
+import multiprocessing
 
 import colorama
 import pandas as pd
@@ -18,6 +19,12 @@ from aeon_ancestry.genotype_from_vcf import Genotypes
 from aeon_ancestry.util import AeonUtil
 from aeon_ancestry.visualisePCA import saveIndividualPCAplot, saveTrioPCAplot, transformToPCA
 
+def estimate(sample, dosage, af_tensor):
+    print(f"Estimating membership for sample {sample} ...")
+        
+    model = PopulationMixtureModelRandom(dosage, af_tensor)
+    result_mle, loss = model.est_mle(trace=100)
+    return torch.round(result_mle, decimals=2), loss
 
 def aeon(args):
     print(f"{Fore.BLUE}*** AEON -- Ancestry Estimation ***{Style.RESET_ALL}")
@@ -31,6 +38,7 @@ def aeon(args):
         else:
             outfix = in_split.split(".")[0]
 
+    threads = args.threads
     af_data = pd.read_table(AeonUtil.resolve_ref_filename(args.allele_freqs))
     loci_list = af_data["VAR_ID"]
     pop_names = af_data.columns[4:]
@@ -45,7 +53,7 @@ def aeon(args):
     print()
 
     # Save PCA visualisation plots
-    if not args.no_visualisation:
+    if args.visualisation:
         print("Making PCA visualisation ... ", end="")
         if args.allele_freqs == "refs/g1k_allele_freqs.txt":
             subset = False
@@ -53,7 +61,7 @@ def aeon(args):
             subset = True
         pca_df = transformToPCA(g, subset=subset)
 
-        if args.inheritance and len(samples) <= 3:
+        if args.inheritance and len(samples) <= 10:
             saveTrioPCAplot(outfix, pca_df)
         else:
             for sample in samples:
@@ -73,17 +81,18 @@ def aeon(args):
     result_df = pd.read_table(AeonUtil.resolve_ref_filename(args.population_labels))
     result_df.set_index("Population", inplace=True)
 
+    # Pooling method:
+    args = [(s,g.dosageForSample(s),af_tensor) for s in samples]
+    pool = multiprocessing.Pool(processes=threads)
+    res = pool.starmap(estimate, args)
+
+    i = 0
     losses = []
-    for sample in samples:
-        print(f"Estimating membership for sample {sample} ...")
-        dosages = g.dosageForSample(sample)
-        model = PopulationMixtureModelRandom(dosages, af_tensor)
-        result_mle, loss = model.est_mle(trace=100)
-
-        losses.append(loss / len(dosages))
-
-        new = pd.DataFrame(torch.round(result_mle, decimals=2), index=pop_names, columns=[sample])
+    for r in res:
+        new = pd.DataFrame(r[0], index=pop_names, columns=[samples[i]])
         result_df = result_df.merge(new, left_index=True, right_index=True)
+        losses.append(r[1]/len(g.dosageForSample(samples[i])))
+        i += 1
 
     log_df["LossPerLoci"] = losses
     log_df.to_csv(f"{outfix}_ae_stats.csv", index=False)
@@ -121,7 +130,14 @@ def main():
         "-o",
         "--out",
         required=False,
-        help="PREFIX for output files. Default is to capture all chars of input filename before the first underscore e.g. 450-100_variants_file.vcf -> 450-100",
+        help="PREFIX for output files. Default is to capture all chars of input filename before the first underscore e.g. 500-x01_variants_file.vcf -> 500-x01",
+    )
+    parser.add_argument(
+        "-t",
+        "--threads",
+        type=int,
+        default=3,
+        help="Number of threads for estimation step - recommended between 3-6"
     )
     parser.add_argument(
         "-v",
@@ -132,10 +148,10 @@ def main():
     parser.add_argument(
         "--inheritance",
         action="store_true",
-        help="Run in inheritance mode - all samples from VCF will be plotted/visualised together. Note: only works for <=3 samples.",
+        help="Run in inheritance mode - all samples from VCF will be plotted/visualised together. Note: only works for <=10 samples.",
     )
     parser.add_argument(
-        "--no_visualisation", action="store_true", help="Do not output any visualisation files."
+        "--visualisation", action="store_true", help="Output PCA visualisation files."
     )
 
     args = parser.parse_args()

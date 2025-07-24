@@ -269,7 +269,6 @@ def predictPopMemberships(ind_dosage, pop_afs, pop_order, name):
     print(f"{Fore.GREEN}{result_all}{Style.RESET_ALL}")
     result_all.to_csv(f"{name}_estimates.csv", index=False)
 
-
 def main(args):
     af_data = pd.read_table(args.allele_freqs)
     loci_list = af_data["VAR_ID"]
@@ -300,7 +299,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="Predict population memberships given a VCF with input samples and known population allele frequencies. Note: \
-                                     any variants present in AF file not present in the VCF will be imputed for all samples as homozygous reference."
+                     any variants present in AF file not present in the VCF will be imputed for all samples as homozygous reference."
     )
     parser.add_argument("vcffile", help="Input VCF")
     parser.add_argument(

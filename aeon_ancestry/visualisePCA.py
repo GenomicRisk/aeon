@@ -6,82 +6,36 @@ import matplotlib.lines as mp_lines
 from aeon_ancestry.genotype_from_vcf import Genotypes
 from aeon_ancestry.util import AeonUtil
 
-
-def plotReferencePCA(num_loci=128097):
+def plotReferencePCA (num_loci=128097):
     # DATA
     ref_pcas = pd.read_table(AeonUtil.resolve_ref_filename("refs/reference_PC3s.txt"), sep=" ")
 
     colour_map = {
-        "ACB": "#2BCE48",
-        "ASW": "#94FFB5",
-        "BEB": "#990000",
-        "CDX": "#C20088",
-        "CEU": "#FFA405",
-        "CHB": "#740AFF",
-        "CHS": "#4C005C",
-        "CLM": "#5EF1F2",
-        "ESN": "#005C31",
-        "FIN": "#FFFF80",
-        "GBR": "#FF0010",
-        "GIH": "#FFCC99",
-        "GWD": "#8F7C00",
-        "IBS": "#FF5005",
-        "ITU": "#993F00",
-        "JPT": "#F0A3FF",
-        "KHV": "#FFA8BB",
-        "LWK": "#E0FF66",
-        "MSL": "#426600",
-        "MXL": "#00998F",
-        "PEL": "#003380",
-        "PJL": "#808080",
-        "PUR": "#0075DC",
-        "STU": "#191919",
-        "TSI": "#FFE100",
-        "YRI": "#9DCC00",
-    }
-    pop_order = [
-        "ESN",
-        "YRI",
-        "ACB",
-        "ASW",
-        "GWD",
-        "MSL",
-        "LWK",
-        "GIH",
-        "PJL",
-        "BEB",
-        "STU",
-        "ITU",
-        "CHB",
-        "CHS",
-        "CDX",
-        "KHV",
-        "JPT",
-        "CEU",
-        "GBR",
-        "IBS",
-        "TSI",
-        "FIN",
-        "PEL",
-        "MXL",
-        "CLM",
-        "PUR",
-    ]
+            "ACB": "#2BCE48",   "ASW": "#94FFB5",   "BEB": "#990000",    "CDX": "#C20088",
+            "CEU": "#FFA405",   "CHB": "#740AFF",   "CHS": "#4C005C",    "CLM": "#5EF1F2",
+            "ESN": "#005C31",   "FIN": "#FFFF80",   "GBR": "#FF0010",    "GIH": "#FFCC99",
+            "GWD": "#8F7C00",   "IBS": "#FF5005",   "ITU": "#993F00",    "JPT": "#F0A3FF",
+            "KHV": "#FFA8BB",   "LWK": "#E0FF66",   "MSL": "#426600",    "MXL": "#00998F",
+            "PEL": "#003380",   "PJL": "#808080",   "PUR": "#0075DC",    "STU": "#191919",
+            "TSI": "#FFE100",   "YRI": "#9DCC00"
+            }
+    pop_order = ["ESN","YRI","ACB","ASW","GWD","MSL","LWK","GIH","PJL",
+                 "BEB","STU","ITU","CHB","CHS","CDX","KHV","JPT","CEU",
+                 "GBR","IBS","TSI","FIN","PEL","MXL","CLM","PUR"]
 
     # PLOTTING
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
-    fig.set_figheight(16)  # 16
-    fig.set_figwidth(16)  # 16
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2)
+    fig.set_figheight(16) #16
+    fig.set_figwidth(16)  #16
 
-    # Fig1: PC1 vs PC2
-    ax1.grid(color="0.9")
+    #Fig1: PC1 vs PC2
+    ax1.grid(color='0.9')
     ax1.set_axisbelow(True)
     ax1.scatter(
-        ref_pcas["PC1"] / num_loci,
-        ref_pcas["PC2"] / num_loci,
+        ref_pcas["PC1"]/num_loci,
+        ref_pcas["PC2"]/num_loci,
         c=ref_pcas["Population"].map(colour_map),
-        s=6,
-    )
+        s=6)
     ax1.tick_params(top=True, left=True, labelleft=False)
     ax1.xaxis.set_label_position("top")
     ax1.set_xlabel("PC1", fontsize=20)
@@ -166,24 +120,16 @@ def addTrioToPCAplot(coord_df, base_axs):
     # (i.e. 2nd return value of plotReferencePCA)
 
     samples = coord_df.columns
-    colours = ["crimson", "mediumblue", "lime"]
+    colours = ['crimson','mediumblue','lime', 'm', 'aqua', 'yellow', 'indianred', 'steelblue', 'darkgoldenrod', 'green']
     markers = []
 
     i = 0
     for s in samples:
-        base_axs[0].plot(
-            coord_df[s]["PC1"], coord_df[s]["PC2"], marker="D", c=colours[i], mec="black", label=s
-        )
-        base_axs[1].plot(
-            coord_df[s]["PC3"], coord_df[s]["PC2"], marker="D", c=colours[i], mec="black", label=s
-        )
-        base_axs[2].plot(
-            coord_df[s]["PC1"], coord_df[s]["PC3"], marker="D", c=colours[i], mec="black", label=s
-        )
-
-        m = mp_lines.Line2D(
-            [], [], color=colours[i], marker="D", mec="black", linestyle="None", label=s
-        )
+        base_axs[0].plot(coord_df[s]["PC1"], coord_df[s]["PC2"], marker="D", c=colours[i], mec='black', label=s)
+        base_axs[1].plot(coord_df[s]["PC3"], coord_df[s]["PC2"], marker="D", c=colours[i], mec='black', label=s)
+        base_axs[2].plot(coord_df[s]["PC1"], coord_df[s]["PC3"], marker="D", c=colours[i], mec='black', label=s)
+        
+        m = mp_lines.Line2D([],[], color=colours[i], marker="D", mec='black', linestyle='None', label=s) 
         markers.append(m)
 
         i += 1
