@@ -7,7 +7,6 @@ Naomi Warren 2023
 import argparse
 import logging
 import os
-import time
 import multiprocessing
 
 import colorama
@@ -49,10 +48,7 @@ def aeon(args):
     # Extract genotypes from file
     print()
     print("Extracting genotypes ...")
-    time_start = time.time()
     g = Genotypes(args.vcffile, loci_list)
-    time_compute = time.time() - time_start
-    print(f"Time extract genotypes: {time_compute}")
     samples = g.getSamples()
     print()
 
@@ -65,7 +61,7 @@ def aeon(args):
             subset = True
         pca_df = transformToPCA(g, subset=subset)
 
-        if args.inheritance and len(samples) <= 3:
+        if args.inheritance and len(samples) <= 10:
             saveTrioPCAplot(outfix, pca_df)
         else:
             for sample in samples:
@@ -85,8 +81,6 @@ def aeon(args):
     result_df = pd.read_table(AeonUtil.resolve_ref_filename(args.population_labels))
     result_df.set_index("Population", inplace=True)
 
-    time_start = time.time()
-
     # Pooling method:
     args = [(s,g.dosageForSample(s),af_tensor) for s in samples]
     pool = multiprocessing.Pool(processes=threads)
@@ -99,9 +93,6 @@ def aeon(args):
         result_df = result_df.merge(new, left_index=True, right_index=True)
         losses.append(r[1]/len(g.dosageForSample(samples[i])))
         i += 1
-
-    time_compute = time.time() - time_start
-    print(f"Time compute genotypes: {time_compute}")
 
     log_df["LossPerLoci"] = losses
     log_df.to_csv(f"{outfix}_ae_stats.csv", index=False)
@@ -157,7 +148,7 @@ def main():
     parser.add_argument(
         "--inheritance",
         action="store_true",
-        help="Run in inheritance mode - all samples from VCF will be plotted/visualised together. Note: only works for <=3 samples.",
+        help="Run in inheritance mode - all samples from VCF will be plotted/visualised together. Note: only works for <=10 samples.",
     )
     parser.add_argument(
         "--visualisation", action="store_true", help="Output PCA visualisation files."

@@ -102,7 +102,7 @@ options:
   -t THREADS, --threads THREADS
                         Number of threads for estimation step - recommended between 3-6
   -v, --verbose         Run in verbose mode (prints INFO level logs to stderr as well as WARNINGs)
-  --inheritance         Run in inheritance mode - all samples from VCF will be plotted/visualised together. Note: only works for <=3 samples.
+  --inheritance         Run in inheritance mode - all samples from VCF will be plotted/visualised together. Note: only works for <=10 samples.
   --visualisation       Output PCA visualisation files.
 ```
 

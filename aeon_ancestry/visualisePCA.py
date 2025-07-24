@@ -120,7 +120,7 @@ def addTrioToPCAplot(coord_df, base_axs):
     # (i.e. 2nd return value of plotReferencePCA)
 
     samples = coord_df.columns
-    colours = ["crimson", "mediumblue", "lime"]
+    colours = ['crimson','mediumblue','lime', 'm', 'aqua', 'yellow', 'indianred', 'steelblue', 'darkgoldenrod', 'green']
     markers = []
 
     i = 0
