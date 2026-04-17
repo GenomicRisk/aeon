@@ -1,12 +1,13 @@
 [project]
 name = "aeon-ancestry"
-version = "1.0.2"
+version = "1.0.3"
 description = "AEon performs global genetic Ancestry Estimation from genome-wide SNPs"
 authors = [
+    {name = "Mark Pinese",email = "mpinese@ccia.org.au"},
     {name = "Naomi Warren",email = "warren.naomi.m@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.10, <=3.13"
 dependencies = [
     "colorama (>=0.4.6,<0.5.0)",
     "matplotlib (==3.8.0)",

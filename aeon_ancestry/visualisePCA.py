@@ -101,15 +101,15 @@ def transformToPCA(genotypes: Genotypes, subset=False):
         centres = centres[subset.index]
         rot = rot[subset.index, :]
 
-    coords = dict()
+    top_scores = dict()
     for sample in genotypes.getSamples():
         d = genotypes.dosageForSample(sample)
         scaled_gt = (d - centres) / scale_f
         rotated_gt = np.matmul(scaled_gt, rot)
 
-        coords[sample] = rotated_gt[0:3]
+        top_scores[sample] = rotated_gt
 
-    return pd.DataFrame(coords, index=["PC1", "PC2", "PC3"]) / n
+    return pd.DataFrame(top_scores, index=["PC{}".format(i) for i in range(1, 19)]) / n
 
 
 def addTrioToPCAplot(coord_df, base_axs):
@@ -128,8 +128,8 @@ def addTrioToPCAplot(coord_df, base_axs):
         base_axs[0].plot(coord_df[s]["PC1"], coord_df[s]["PC2"], marker="D", c=colours[i], mec='black', label=s)
         base_axs[1].plot(coord_df[s]["PC3"], coord_df[s]["PC2"], marker="D", c=colours[i], mec='black', label=s)
         base_axs[2].plot(coord_df[s]["PC1"], coord_df[s]["PC3"], marker="D", c=colours[i], mec='black', label=s)
-        
-        m = mp_lines.Line2D([],[], color=colours[i], marker="D", mec='black', linestyle='None', label=s) 
+
+        m = mp_lines.Line2D([],[], color=colours[i], marker="D", mec='black', linestyle='None', label=s)
         markers.append(m)
 
         i += 1
