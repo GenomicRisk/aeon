@@ -104,6 +104,8 @@ options:
   -v, --verbose         Run in verbose mode (prints INFO level logs to stderr as well as WARNINGs)
   --inheritance         Run in inheritance mode - all samples from VCF will be plotted/visualised together. Note: only works for <=10 samples.
   --visualisation       Output PCA visualisation files.
+  --num_scores N        Number of principal component scores to emit if --visualisation is active. Default 3, maximum 18. Has no effect if 
+                        --visualisation is not set.
 ```
 
 **For a generic single- or multi-sample VCF from WGS data:**
@@ -192,7 +194,7 @@ It is important to bear in mind that ancestral populations are not completely is
 
 This output file provides some basic information about how samples were processed. For each sample, it provides the following information:
 
-- The **PC1**, **PC2** and **PC3** values calculated from the genotype vector, used to plot the sample against reference populations
+- The **PC** values calculated from the genotype vector, used to plot the sample against reference populations
 - **FractionLociImputed:** Number of ancestry-informative loci without a record present in the input VCF, divided by 128097. All such loci are imputed as reference. This fraction should be the same for all samples in a VCF.
 - **FractionLociNonCalled:** Number of ancestry-informative alleles with a record present in the input VCF, but non-called genotype, divided by 2\*128097. This often happens if you have merged multiple VCFs where one file contains a variant absent in the other file. All such loci are imputed as reference. This fraction will likely differ across samples in a VCF.
 - **NumberMultiAllelic:** Number of ancestry-informative loci with a different variant allele from the one listed in the allele frequency file. All non-reference values are compressed to 1.
@@ -252,6 +254,11 @@ This initial list was then further refined to suit the reference set from 1000 G
 
 ## Who do I talk to? ##
 
-Contact Naomi for more info at <nwarren@ccia.org.au>
+Contact Mark for more info at <mpinese@ccia.org.au>
 
 <sup>1</sup> _**aeon** /ˈiːən/ (noun):_ an indefinite and very long period of time
+
+## Changelog ##
+
+- v1.0.2: Initial release (Naomi Warren)
+- v1.0.3: Added --num_scores option, removed multiprocessing for nthreads = 1 (Mark Pinese)

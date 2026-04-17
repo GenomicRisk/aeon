@@ -1,7 +1,8 @@
 """
 aeon
 
-Naomi Warren 2023
+2023        Naomi Warren    Initial version (v1.0.2)
+20260417    Mark Pinese     Added PC score export. Disabled multiprocessing for threads == 1. (v1.0.3)
 """
 
 import argparse
@@ -19,12 +20,14 @@ from aeon_ancestry.genotype_from_vcf import Genotypes
 from aeon_ancestry.util import AeonUtil
 from aeon_ancestry.visualisePCA import saveIndividualPCAplot, saveTrioPCAplot, transformToPCA
 
+
 def estimate(sample, dosage, af_tensor):
     print(f"Estimating membership for sample {sample} ...")
-        
+
     model = PopulationMixtureModelRandom(dosage, af_tensor)
     result_mle, loss = model.est_mle(trace=100)
     return torch.round(result_mle, decimals=2), loss
+
 
 def aeon(args):
     print(f"{Fore.BLUE}*** AEON -- Ancestry Estimation ***{Style.RESET_ALL}")
@@ -59,14 +62,15 @@ def aeon(args):
             subset = False
         else:
             subset = True
-        pca_df = transformToPCA(g, subset=subset)
+        pca_top_df = transformToPCA(g, subset=subset)
 
         if args.inheritance and len(samples) <= 10:
-            saveTrioPCAplot(outfix, pca_df)
+            saveTrioPCAplot(outfix, pca_top_df)
         else:
             for sample in samples:
-                saveIndividualPCAplot(sample, pca_df)
-        log_df = pca_df.T
+                saveIndividualPCAplot(sample, pca_top_df)
+        num_scores = max(0, min(18, args.num_scores))
+        log_df = pca_top_df.T.iloc[:, :(num_scores+1)]
         log_df.reset_index(inplace=True, names="Sample")
         print()
     else:
@@ -83,8 +87,11 @@ def aeon(args):
 
     # Pooling method:
     args = [(s,g.dosageForSample(s),af_tensor) for s in samples]
-    pool = multiprocessing.Pool(processes=threads)
-    res = pool.starmap(estimate, args)
+    if threads > 1:
+        pool = multiprocessing.Pool(processes=threads)
+        res = pool.starmap(estimate, args)
+    else:
+        res = [estimate(*x) for x in args]
 
     i = 0
     losses = []
@@ -152,6 +159,13 @@ def main():
     )
     parser.add_argument(
         "--visualisation", action="store_true", help="Output PCA visualisation files."
+    )
+    parser.add_argument(
+        "--num_scores",
+        default=3,
+        type=int,
+        required=False,
+        help="Number of principal component scores to emit if --visualisation is active. Default 3, maximum 18. Has no effect if --visualisation is not set.",
     )
 
     args = parser.parse_args()
