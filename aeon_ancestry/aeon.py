@@ -19,9 +19,11 @@ from aeon_ancestry.genotype_from_vcf import Genotypes
 from aeon_ancestry.util import AeonUtil
 from aeon_ancestry.visualisePCA import saveIndividualPCAplot, saveTrioPCAplot, transformToPCA
 
-def estimate(sample, dosage, af_tensor):
+def estimate(sample, dosage, af_tensor, verbose):
+    logging.basicConfig(level=logging.INFO if verbose else logging.WARN)
+
     print(f"Estimating membership for sample {sample} ...")
-        
+
     model = PopulationMixtureModelRandom(dosage, af_tensor)
     result_mle, loss = model.est_mle(trace=100)
     return torch.round(result_mle, decimals=2), loss
@@ -39,6 +41,7 @@ def aeon(args):
             outfix = in_split.split(".")[0]
 
     threads = args.threads
+    verbose = args.verbose
     af_data = pd.read_table(AeonUtil.resolve_ref_filename(args.allele_freqs))
     loci_list = af_data["VAR_ID"]
     pop_names = af_data.columns[4:]
@@ -81,9 +84,9 @@ def aeon(args):
     result_df = pd.read_table(AeonUtil.resolve_ref_filename(args.population_labels))
     result_df.set_index("Population", inplace=True)
 
-    # Pooling method:
-    args = [(s,g.dosageForSample(s),af_tensor) for s in samples]
-    pool = multiprocessing.Pool(processes=threads)
+    # Pooling method: spawn since fork has chance of deadlocking through copied locks
+    args = [(s,g.dosageForSample(s),af_tensor,verbose) for s in samples]
+    pool = multiprocessing.get_context("spawn").Pool(processes=threads)
     res = pool.starmap(estimate, args)
 
     i = 0
