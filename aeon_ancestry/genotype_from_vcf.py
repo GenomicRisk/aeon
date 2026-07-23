@@ -41,6 +41,7 @@ class Genotypes:
             genos[sample] = []
 
         imputed = 0
+        malformed = 0
         for variant in var_list:
             rid = variant.strip()
             var_ids.append(rid)
@@ -50,7 +51,11 @@ class Genotypes:
             rec = next(vars, False)
             if rec:
                 for s_name, s_values in rec.samples.items():
-                    genos[s_name].append(s_values["GT"])
+                    if len(s_values["GT"]) != 2:
+                        malformed += 1
+                        genos[s_name].append((0, 0))
+                    else:
+                        genos[s_name].append(s_values["GT"])
             else:
                 imputed += 1
                 for s_name in self.samples:
@@ -65,11 +70,15 @@ class Genotypes:
         genos["var_ids"] = var_ids
 
         self.imputed_frac = imputed / len(var_ids)
+        self.malformed_frac = malformed / len(var_ids)
         logging.info(
             f"    {sum(self.noncalled.values()) / 2} genotypes (across all samples) were not called and will be imputed as reference."
         )
         logging.info(
             f"    {imputed} loci had no entry in VCF and were imputed as homozygous reference ({round(self.imputed_frac * 100, 2)}%)."
+        )
+        logging.info(
+            f"    {malformed} loci were not properly formatted and were imputed as homozygous reference ({round(self.malformed_frac * 100, 2)}%)."
         )
         return genos
 
